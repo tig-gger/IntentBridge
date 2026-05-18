@@ -11,7 +11,7 @@ IntentBridge 第六步：LLM 调用 (LLM Caller)
   - 可以自由做A/B测试：同一个请求发给两个模型，比较效果
   - 容错：一个模型挂了自动切换到另一个
 """
-
+import httpx
 import time
 from openai import OpenAI
 from utils.config import Config
@@ -158,9 +158,17 @@ def _call_deepseek(
                               "⚠️ 未配置 DEEPSEEK_API_KEY")
 
     # 使用 OpenAI SDK，但指向 DeepSeek 的 API 地址
+    import os
+    import httpx
+    # 清除代理环境变量
+    for var in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']:
+        os.environ.pop(var, None)
+
+    http_client = httpx.Client(proxies=None)
     client = OpenAI(
         api_key=Config.DEEPSEEK_API_KEY,
         base_url=Config.DEEPSEEK_BASE_URL,
+        http_client=http_client,
     )
     params = MODEL_PARAMS.get(model, MODEL_PARAMS["deepseek-chat"])
 
