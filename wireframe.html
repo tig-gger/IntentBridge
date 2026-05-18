@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>IntentBridge 原型线框图</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #f5f5f5; padding: 20px; }
+  h1 { text-align: center; color: #333; }
+  .gallery { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; }
+  .frame { background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 420px; overflow: hidden; }
+  .frame h2 { background: #f0f0f0; margin: 0; padding: 12px 16px; font-size: 14px; color: #666; }
+  .frame .body { padding: 0; }
+  /* 模拟浏览器窗口 */
+  .macos-bar { background: #e8e8e8; padding: 8px 12px; display: flex; gap: 6px; }
+  .macos-bar .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .macos-bar .dot:nth-child(1) { background: #ff5f56; }
+  .macos-bar .dot:nth-child(2) { background: #ffbd2e; }
+  .macos-bar .dot:nth-child(3) { background: #27c93f; }
+
+  /* 主界面 */
+  .layout { display: flex; height: 550px; }
+  .sidebar { width: 130px; background: #fafafa; border-right: 1px solid #eee; padding: 12px; }
+  .sidebar-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 12px; }
+  .sidebar-item { font-size: 11px; color: #666; padding: 6px 0; border-bottom: 1px solid #eee; }
+  .sidebar-badge { display: inline-block; background: #e8f5e9; color: #2e7d32; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+  .chat-area { flex: 1; display: flex; flex-direction: column; padding: 16px; }
+  .chat-msg { margin-bottom: 12px; }
+  .chat-msg.user { text-align: right; }
+  .chat-msg .bubble { display: inline-block; padding: 10px 14px; border-radius: 12px; font-size: 13px; max-width: 80%; }
+  .chat-msg.user .bubble { background: #007aff; color: white; border-bottom-right-radius: 4px; }
+  .chat-msg.ai .bubble { background: #f0f0f0; color: #333; border-bottom-left-radius: 4px; }
+  .chat-input { margin-top: auto; border: 1px solid #ddd; border-radius: 20px; padding: 10px 16px; font-size: 13px; color: #999; }
+
+  /* 透明度面板 */
+  .pipeline-panel { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; margin-top: 8px; }
+  .pipeline-step { display: flex; padding: 3px 0; font-size: 11px; }
+  .pipeline-step .num { color: #007aff; font-weight: bold; width: 20px; }
+  .pipeline-step .label { color: #333; width: 70px; }
+  .pipeline-step .val { color: #666; font-size: 10px; }
+
+  /* 反馈按钮 */
+  .feedback-row { display: flex; gap: 8px; margin: 6px 0; }
+  .feedback-btn { border: 1px solid #ddd; border-radius: 6px; padding: 4px 12px; font-size: 14px; cursor: default; }
+  .stats-box { background: #f0f7ff; border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 11px; }
+  .stats-bar { height: 6px; background: #e0e0e0; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+  .stats-bar-fill { height: 100%; width: 80%; background: #007aff; border-radius: 3px; }
+  .meta { font-size: 11px; color: #999; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>IntentBridge 原型线框图</h1>
+<p style="text-align:center;color:#666;margin-bottom:30px;">用浏览器截图保存为图片，放入 IntentBridge 文件夹即可</p>
+
+<div class="gallery">
+
+  <!-- 界面1：主对话 -->
+  <div class="frame">
+    <div class="macos-bar">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <h2>界面1：主对话界面</h2>
+    <div class="body">
+      <div class="layout">
+        <div class="sidebar">
+          <div class="sidebar-title">🌉 IntentBridge</div>
+          <div class="sidebar-item">🔌 API ✅</div>
+          <div class="sidebar-item">🔍 透明度 <span class="sidebar-badge">关</span></div>
+          <div class="sidebar-item" style="margin-top:20px;">📌 写作</div>
+          <div class="sidebar-item">📌 编程</div>
+          <div class="sidebar-item">📌 知识问答</div>
+          <div class="sidebar-item" style="margin-top:20px;color:#999;">🗑️ 清空</div>
+        </div>
+        <div class="chat-area">
+          <div class="chat-msg user">
+            <div class="bubble">帮我写一封辞职信，语气正式</div>
+          </div>
+          <div class="chat-msg ai">
+            <div class="bubble">
+              <b>尊敬的[领导姓名]：</b><br><br>
+              感谢您多年来对我的培养与信任...<br><br>
+              祝好，<br>
+              [您的姓名]
+              <div class="meta">🤖 deepseek-chat | 🟢 高置信度</div>
+            </div>
+          </div>
+          <div class="chat-input">说你的需求...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 界面2：透明度模式 -->
+  <div class="frame">
+    <div class="macos-bar">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <h2>界面2：透明度模式开启</h2>
+    <div class="body">
+      <div class="layout">
+        <div class="sidebar">
+          <div class="sidebar-title">🌉 IntentBridge</div>
+          <div class="sidebar-item">🔌 API ✅</div>
+          <div class="sidebar-item">🔍 透明度 <span class="sidebar-badge" style="background:#007aff;color:white;">开</span></div>
+          <div class="sidebar-item" style="margin-top:20px;">📌 写作</div>
+          <div class="sidebar-item">📌 编程</div>
+          <div class="sidebar-item">📌 知识问答</div>
+        </div>
+        <div class="chat-area">
+          <div class="chat-msg user">
+            <div class="bubble">帮我写一封辞职信，语气正式</div>
+          </div>
+          <div class="chat-msg ai">
+            <div class="bubble">尊敬的[领导姓名]：感谢您多年来的培养...</div>
+          </div>
+          <div class="pipeline-panel">
+            <div class="pipeline-step"><span class="num">①</span><span class="label">意图识别</span><span class="val">writing（写作）</span></div>
+            <div class="pipeline-step"><span class="num">②</span><span class="label">参数提取</span><span class="val">{体裁: 信函, 语气: 正式}</span></div>
+            <div class="pipeline-step"><span class="num">③</span><span class="label">用户画像</span><span class="val">新用户</span></div>
+            <div class="pipeline-step"><span class="num">④</span><span class="label">Prompt优化</span><span class="val">已构建增强指令 ✅</span></div>
+            <div class="pipeline-step"><span class="num">⑤</span><span class="label">模型路由</span><span class="val">deepseek-chat（性价比最高）</span></div>
+            <div class="pipeline-step"><span class="num">⑥</span><span class="label">LLM调用</span><span class="val">1.2s | 128 tokens</span></div>
+            <div class="pipeline-step"><span class="num">⑦</span><span class="label">输出优化</span><span class="val">🟢 高置信度</span></div>
+          </div>
+          <div class="chat-input" style="margin-top:8px;">说你的需求...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 界面3：反馈系统 -->
+  <div class="frame">
+    <div class="macos-bar">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <h2>界面3：反馈系统</h2>
+    <div class="body">
+      <div class="layout">
+        <div class="sidebar">
+          <div class="sidebar-title">🌉 IntentBridge</div>
+          <div class="sidebar-item">🔌 API ✅</div>
+          <div class="sidebar-item">🔍 透明度 <span class="sidebar-badge">关</span></div>
+          <div class="stats-box" style="margin-top:16px;">
+            <b>📊 反馈统计</b><br>
+            👍 有用 8 / 👎 没用 2<br>
+            <div class="stats-bar"><div class="stats-bar-fill"></div></div>
+            满意度 80%
+          </div>
+          <div class="sidebar-item" style="margin-top:16px;">总对话: 12次</div>
+        </div>
+        <div class="chat-area">
+          <div class="chat-msg user">
+            <div class="bubble">帮我写一封辞职信，语气正式</div>
+          </div>
+          <div class="chat-msg ai">
+            <div class="bubble">尊敬的[领导姓名]：感谢您多年来的培养...</div>
+          </div>
+          <div class="feedback-row">
+            <span class="feedback-btn" style="border-color:#007aff;background:#e8f0fe;">👍</span>
+            <span class="feedback-btn">👎</span>
+            <span style="font-size:11px;color:#999;">这个回答有用吗？</span>
+          </div>
+          <div class="chat-msg user" style="margin-top:8px;">
+            <div class="bubble">用Python写一个爬虫</div>
+          </div>
+          <div class="chat-msg ai">
+            <div class="bubble">import requests<br>from bs4 import BeautifulSoup<br><br>def crawler(url):...</div>
+          </div>
+          <div class="meta" style="padding-left:4px;">已反馈 👍</div>
+          <div class="chat-input" style="margin-top:8px;">说你的需求...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center;color:#999;margin-top:40px;">
+  💡 截图方法：Windows 按 Win+Shift+S 截图，保存到 IntentBridge 文件夹
+</p>
+</body>
+</html>
