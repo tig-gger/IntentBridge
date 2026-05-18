@@ -33,16 +33,16 @@ else:
 class Config:
     """应用配置，从环境变量读取"""
 
-    # API Keys
-    DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+    # API Keys（支持两种写法：DEEPSEEK_API_KEY 或 deepseekkey）
+    DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY") or os.getenv("deepseekkey", "")
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("openaikey", "")
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") or os.getenv("anthropickey", "")
 
     # DeepSeek API 地址
     DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 
     # 模型配置
-    DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "deepseek-chat")
+    DEFAULT_MODEL = os.getenv("DEFAULT_MODEL") or os.getenv("defaultmodel", "deepseek-chat")
 
     # 可用模型列表（模型路由时会从这些中选择）
     ENABLED_MODELS = {
