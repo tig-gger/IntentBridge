@@ -11,6 +11,7 @@ IntentBridge 第六步：LLM 调用 (LLM Caller)
   - 可以自由做A/B测试：同一个请求发给两个模型，比较效果
   - 容错：一个模型挂了自动切换到另一个
 """
+import requests
 import httpx
 import time
 from openai import OpenAI
@@ -149,60 +150,67 @@ def _call_deepseek(
     stream: bool = False,
 ) -> dict:
     """
-    调用 DeepSeek API。
-    DeepSeek 使用 OpenAI 兼容的 API 格式，所以可以直接用 OpenAI SDK，
-    只需把 base_url 换成 DeepSeek 的地址。
+    使用 requests 直接调用 DeepSeek API（避免 openai 库的代理问题）
     """
     if not Config.DEEPSEEK_API_KEY:
-        return _demo_response(system_prompt, user_prompt, model,
-                              "⚠️ 未配置 DEEPSEEK_API_KEY")
+        return _demo_response(system_prompt, user_prompt, model, "未配置 DEEPSEEK_API_KEY")
 
-    # 使用 OpenAI SDK，但指向 DeepSeek 的 API 地址
-    import os
-    import httpx
-    # 清除代理环境变量
-    for var in ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']:
-        os.environ.pop(var, None)
+    import requests
+    import json
+    import time
 
-    http_client = httpx.Client(proxies=None)
-    client = OpenAI(
-        api_key=Config.DEEPSEEK_API_KEY,
-        base_url=Config.DEEPSEEK_BASE_URL,
-        http_client=http_client,
-    )
-    params = MODEL_PARAMS.get(model, MODEL_PARAMS["deepseek-chat"])
-
+    # DeepSeek API 地址
+    base_url = Config.DEEPSEEK_BASE_URL.rstrip('/')
+    url = f"{base_url}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {Config.DEEPSEEK_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    params = MODEL_PARAMS.get(model, MODEL_PARAMS.get("deepseek-chat", {}))
+    data = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        "temperature": params.get("temperature", 0.7),
+        "max_tokens": params.get("max_tokens", 4096),
+        "stream": stream
+    }
     start_time = time.time()
-
     try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=params["temperature"],
-            max_tokens=params["max_tokens"],
-            timeout=params["timeout"],
-            stream=False,
-        )
-
+        # 创建 session 并禁用环境代理
+        session = requests.Session()
+        session.trust_env = False   # 不读取 HTTP_PROXY 环境变量
+        response = session.post(url, headers=headers, json=data, timeout=params.get("timeout", 60))
         latency = time.time() - start_time
-
-        return {
-            "content": response.choices[0].message.content or "",
-            "model": model,
-            "latency": round(latency, 2),
-            "tokens_in": response.usage.prompt_tokens if response.usage else 0,
-            "tokens_out": response.usage.completion_tokens if response.usage else 0,
-            "provider": "deepseek",
-            "error": None,
-        }
-
+        if response.status_code == 200:
+            result = response.json()
+            content = result["choices"][0]["message"]["content"] or ""
+            return {
+                "content": content,
+                "model": model,
+                "latency": round(latency, 2),
+                "tokens_in": result.get("usage", {}).get("prompt_tokens", 0),
+                "tokens_out": result.get("usage", {}).get("completion_tokens", 0),
+                "provider": "deepseek",
+                "error": None,
+            }
+        else:
+            error_msg = f"HTTP {response.status_code}: {response.text}"
+            return {
+                "content": f"DeepSeek API 错误: {error_msg}",
+                "model": model,
+                "latency": round(latency, 2),
+                "tokens_in": 0,
+                "tokens_out": 0,
+                "provider": "deepseek",
+                "error": error_msg,
+            }
     except Exception as e:
         latency = time.time() - start_time
         return {
-            "content": f"调用 DeepSeek API 时出错：{str(e)}",
+            "content": f"调用 DeepSeek API 时出错: {str(e)}",
             "model": model,
             "latency": round(latency, 2),
             "tokens_in": 0,
@@ -210,8 +218,6 @@ def _call_deepseek(
             "provider": "deepseek",
             "error": str(e),
         }
-
-
 def _call_anthropic(
     system_prompt: str,
     user_prompt: str,
