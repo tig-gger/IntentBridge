@@ -179,9 +179,8 @@ def _call_deepseek(
     }
     start_time = time.time()
     try:
-        # 创建 session 并禁用环境代理
         session = requests.Session()
-        session.trust_env = False   # 不读取 HTTP_PROXY 环境变量
+        session.trust_env = False   # 禁用代理
         response = session.post(url, headers=headers, json=data, timeout=params.get("timeout", 60))
         latency = time.time() - start_time
         if response.status_code == 200:
@@ -218,6 +217,8 @@ def _call_deepseek(
             "provider": "deepseek",
             "error": str(e),
         }
+    
+    
 def _call_anthropic(
     system_prompt: str,
     user_prompt: str,
